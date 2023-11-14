@@ -33,6 +33,7 @@ class battleship:
     print('   1  2  3  4  5  6  7  8  9  10')
     for i in range(0, 10):
       letter = string.ascii_uppercase[i]
+      # funky map function for when # of orientations is 2 digit number
       print(letter + '  ' + \
             ''.join(map(lambda x: str(x) + ' ' if x > 9 else str(x) + '  ', \
                         self.prob[i,:].tolist())))
@@ -72,23 +73,23 @@ class battleship:
 
   def calculate_prob(self, boat_len):
     # calculates the # of orientations a boat of 
-    # length boat_len can fit at every cell if it is the starting cell
+    # length boat_len can fit at every cell
     for row in range(10):
       for col in range(10):
-        count = 0
-        if row - boat_len >= -1: #top
-          if all(cell == '-' for cell in self.hits[row - boat_len + 1:row + 1, col]):
-            count += 1
         if row + boat_len <= 10: #bottom
-          if all(cell == '-' for cell in self.hits[row:row + boat_len, col]):
-            count += 1
-        if col - boat_len >= -1: #left
-          if all(cell == '-' for cell in self.hits[row, col - boat_len + 1:col + 1]):
-            count += 1
+          boat_loc = self.hits[row:row + boat_len, col]
+          boat_proc = self.prob[row:row + boat_len, col]
+          if all(cell == '-' for cell in boat_loc):
+            for i in range(len(boat_proc)):
+              boat_proc[i] += 1
+
         if col + boat_len <= 10: #right
-          if all(cell == '-' for cell in self.hits[row, col:col + boat_len]):
-            count += 1
-        self.prob[row, col] += count 
+          boat_loc = self.hits[row, col:col + boat_len]
+          boat_proc = self.prob[row, col:col + boat_len]
+          if all(cell == '-' for cell in boat_loc):
+            for i in range(len(boat_proc)):
+              boat_proc[i] += 1
+            
 
 # %%
 # initialize
@@ -111,14 +112,13 @@ while(True):
   #board.visualize_prob()
   board.visualize()
   print("Recommended coordinates: " + index_to_coord(board.give_max_coord()))
-
-  instruct = input("H [coord], M [coord], sunk [ship], remove [coord]: ")
-  instruction = instruct.split(' ')[0]
-  parameter = instruct.split(' ')[1]
-
   print('-------------------------------------------')
 
+  instruct = input("H [coord], M [coord], sunk [ship], remove [coord]: ")
   try:
+    instruction = instruct.split(' ')[0]
+    parameter = instruct.split(' ')[1]
+
     if instruction == "H":
       board.add_hit(parameter)
     if instruction == "M":
