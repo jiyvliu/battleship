@@ -1,0 +1,1 @@
+First pass implementation of (probably) optimal battleship game strategy based on [a Youtube video](https://www.youtube.com/watch?v=8FctDuTfcO8)
